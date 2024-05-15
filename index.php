@@ -14,7 +14,7 @@ $books = $bookManager->getAllBooks();
 </head>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
-        <a class="navbar-brand" href="#">Login&Library</a>
+        <a class="navbar-brand" href="index.php">YourLibrary</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -54,6 +54,10 @@ $books = $bookManager->getAllBooks();
                     <label for="anno_pubblicazione" class="form-label">Anno di Pubblicazione:</label>
                     <input type="number" name="anno_pubblicazione" id="anno_pubblicazione" class="form-control" required>
                 </div>
+                <div class="mb-3">
+                    <label for="immagine" class="form-label">Immagine:</label>
+                    <input type="file" name="immagine" id="immagine" class="form-control" required>
+                </div>
                 <button type="submit" class="btn btn-primary">Aggiungi</button>
             </form>
         <?php endif; ?>
@@ -61,16 +65,15 @@ $books = $bookManager->getAllBooks();
         <div class="row mt-3">
             <?php foreach ($books as $book) : ?>
                 <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title"><?php echo $book['title']; ?></h5>
-                            <h6 class="card-subtitle mb-2 text-muted"><?php echo $book['author']; ?></h6>
-                            <p class="card-text"><?php echo $book['year_publication']; ?></p>
-                            <?php if ($userManager->isLoggedIn()) : ?>
-                                <a href="?action=delete&book_id=<?php echo $book['id_book']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo libro?')">Elimina</a>
-                            <?php endif; ?>
-                        </div>
+                  <div class="card">
+                    <img src="<?php echo $book['image']; ?>" class="card-img-top" alt="Immagine libro">
+                    <div class="card-body">
+                      <h5 class="card-title"><?php echo $book['title']; ?></h5>
+                      <h6 class="card-subtitle mb-2 text-muted"><?php echo $book['author']; ?></h6>
+                      <p class="card-text"><?php echo $book['year_publication']; ?></p>
+                      <a href="?action=delete&book_id=<?php echo $book['id_book']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo libro?')">Elimina</a>
                     </div>
+                  </div>
                 </div>
             <?php endforeach; ?>
         </div>

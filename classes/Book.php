@@ -15,16 +15,15 @@ $options = [
 
 $pdo = new PDO($dsn, $user, $pass, $options);
 
-
 $bookManager = new Book($pdo);
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $title = $_POST['titolo'];
     $author = $_POST['autore_regista'];
     $year_publication = $_POST['anno_pubblicazione'];
+    $image = $_POST['image'];
 
-    $bookManager = new Book($pdo);
-    $newBookId = $bookManager->insertBook($title, $author, $year_publication);
+    $newBookId = $bookManager->insertBook($title, $author, $year_publication, $image);
 
     if ($newBookId) {
         $alertMessage = "Nuovo libro inserito con ID: $newBookId";
@@ -34,6 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $alertClass = "alert-danger show";
     }
 }
+
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['book_id'])) {
     $bookId = $_GET['book_id'];
     $deleted = $bookManager->deleteBookById($bookId);
@@ -49,6 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['book_id'])) {
 
 class Book {
     private $pdo;
+    
     public function __construct($pdo) {
         $this->pdo = $pdo;
     }
@@ -59,17 +60,13 @@ class Book {
         return $stmt->fetchAll();
     }
 
-    public function insertBook($title, $author, $year_publication) {
-        if (!empty($title) && !empty($author) && !empty($year_publication)) {
-
-            $sql = "INSERT INTO books (title, author, year_publication) VALUES (?, ?, ?)";
+    public function insertBook($title, $author, $year_publication, $image) {
+        if (!empty($title) && !empty($author) && !empty($year_publication) && !empty($image)) {
+            $sql = "INSERT INTO books (title, author, year_publication, image) VALUES (?, ?, ?, ?)";
             $stmt = $this->pdo->prepare($sql);
-
-            $stmt->execute([$title, $author, $year_publication]);
-
+            $stmt->execute([$title, $author, $year_publication, $image]);
             return $this->pdo->lastInsertId();
         } else {
-
             return false;
         }
     }
