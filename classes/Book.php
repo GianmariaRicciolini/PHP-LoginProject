@@ -17,36 +17,6 @@ $pdo = new PDO($dsn, $user, $pass, $options);
 
 $bookManager = new Book($pdo);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $title = $_POST['titolo'];
-    $author = $_POST['autore_regista'];
-    $year_publication = $_POST['anno_pubblicazione'];
-    $image = $_POST['image'];
-
-    $newBookId = $bookManager->insertBook($title, $author, $year_publication, $image);
-
-    if ($newBookId) {
-        $alertMessage = "Nuovo libro inserito con ID: $newBookId";
-        $alertClass = "alert-success show";
-    } else {
-        $alertMessage = "Si è verificato un errore durante l'inserimento del libro.";
-        $alertClass = "alert-danger show";
-    }
-}
-
-if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['book_id'])) {
-    $bookId = $_GET['book_id'];
-    $deleted = $bookManager->deleteBookById($bookId);
-    if ($deleted) {
-        $books = $bookManager->getAllBooks();
-        $alertMessage = "Libro eliminato con successo.";
-        $alertClass = "alert-success show";
-    } else {
-        $alertMessage = "Errore durante l'eliminazione del libro.";
-        $alertClass = "alert-danger show";
-    }
-}
-
 class Book {
     private $pdo;
     
@@ -61,7 +31,7 @@ class Book {
     }
 
     public function insertBook($title, $author, $year_publication, $image) {
-        if (!empty($title) && !empty($author) && !empty($year_publication) && !empty($image)) {
+        if (!empty($title) && !empty($author) && !empty($year_publication) && filter_var($image, FILTER_VALIDATE_URL)) {
             $sql = "INSERT INTO books (title, author, year_publication, image) VALUES (?, ?, ?, ?)";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([$title, $author, $year_publication, $image]);
@@ -69,12 +39,34 @@ class Book {
         } else {
             return false;
         }
-    }
+    }    
 
     public function deleteBookById($id) {
-        $sql = "DELETE FROM books WHERE id_book = ?";
+        if (!empty($id)) {
+            $sql = "DELETE FROM books WHERE id_book = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$id]);
+            return $stmt->rowCount();
+        } else {
+            return false;
+        }
+    }    
+
+    public function getBookById($id) {
+        $sql = "SELECT * FROM books WHERE id_book = ?";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([$id]);
-        return $stmt->rowCount();
+        return $stmt->fetch();
     }
+    public function updateBook($id, $title, $author, $year_publication, $image) {
+        if (!empty($title) && !empty($author) && !empty($year_publication) && filter_var($image, FILTER_VALIDATE_URL)) {
+            $sql = "UPDATE books SET title = ?, author = ?, year_publication = ?, image = ? WHERE id_book = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$title, $author, $year_publication, $image, $id]);
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
 }
