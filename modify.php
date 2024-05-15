@@ -27,28 +27,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $bookDetails = $bookManager->getBookById($bookId);
 
     if ($bookDetails) {
+
+        include __DIR__ . '/includes/head.php';
         ?>
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Modify Book</title>
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-        </head>
-        <body>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-          <div class="container">
-            <a class="navbar-brand" href="index.php">YourLibrary</a>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php">Home</a>
-                    </li>
-                </ul>
-            </div>
-          </div>
-        </nav>
             <div class="container">
                 <h1 class="mt-5">Modify Book</h1>
                 <form action="" method="post" class="mt-4">
