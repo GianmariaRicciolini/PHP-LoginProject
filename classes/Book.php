@@ -16,6 +16,37 @@ $options = [
 $pdo = new PDO($dsn, $user, $pass, $options);
 
 
+$bookManager = new Book($pdo);
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    $title = $_POST['titolo'];
+    $author = $_POST['autore_regista'];
+    $year_publication = $_POST['anno_pubblicazione'];
+
+    $bookManager = new Book($pdo);
+    $newBookId = $bookManager->insertBook($title, $author, $year_publication);
+
+    if ($newBookId) {
+        $alertMessage = "Nuovo libro inserito con ID: $newBookId";
+        $alertClass = "alert-success show";
+    } else {
+        $alertMessage = "Si è verificato un errore durante l'inserimento del libro.";
+        $alertClass = "alert-danger show";
+    }
+}
+if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['book_id'])) {
+    $bookId = $_GET['book_id'];
+    $deleted = $bookManager->deleteBookById($bookId);
+    if ($deleted) {
+        $books = $bookManager->getAllBooks();
+        $alertMessage = "Libro eliminato con successo.";
+        $alertClass = "alert-success show";
+    } else {
+        $alertMessage = "Errore durante l'eliminazione del libro.";
+        $alertClass = "alert-danger show";
+    }
+}
+
 class Book {
     private $pdo;
     public function __construct($pdo) {

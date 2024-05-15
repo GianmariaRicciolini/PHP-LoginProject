@@ -1,42 +1,8 @@
 <?php
 include_once __DIR__ . '/classes/Book.php';
+include_once __DIR__ . '/classes/User.php';
 
-    $bookManager = new Book($pdo);
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
-    $title = $_POST['titolo'];
-    $author = $_POST['autore_regista'];
-    $year_publication = $_POST['anno_pubblicazione'];
-
-    $bookManager = new Book($pdo);
-    $newBookId = $bookManager->insertBook($title, $author, $year_publication);
-
-    if ($newBookId) {
-        $alertMessage = "Nuovo libro inserito con ID: $newBookId";
-        $alertClass = "alert-success show";
-    } else {
-        $alertMessage = "Si è verificato un errore durante l'inserimento del libro.";
-        $alertClass = "alert-danger show";
-    }
-}
-if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['book_id'])) {
-    $bookId = $_GET['book_id'];
-    $deleted = $bookManager->deleteBookById($bookId);
-    if ($deleted) {
-        $books = $bookManager->getAllBooks();
-        $alertMessage = "Libro eliminato con successo.";
-        $alertClass = "alert-success show";
-    } else {
-        $alertMessage = "Errore durante l'eliminazione del libro.";
-        $alertClass = "alert-danger show";
-    }
-}
-
-
-
-    $books = $bookManager->getAllBooks();
-
-
+$books = $bookManager->getAllBooks();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -46,39 +12,66 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['book_id'])) {
     <title>Login&Library</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="#">Login&Library</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <?php if ($userManager->isLoggedIn()) : ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="logout.php">Logout</a>
+                    </li>
+                <?php else: ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="loginRegister.php">Login/Register</a>
+                    </li>
+                <?php endif; ?>
+            </ul>
+        </div>
+    </div>
+</nav>
 <body>
     <div class="container">
-        <h1 class="mt-5">Aggiungi Libro</h1>
-        <form action="" method="post" class="mt-4">
-            <div class="mb-3">
-                <label for="titolo" class="form-label">Titolo:</label>
-                <input type="text" name="titolo" id="titolo" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="autore_regista" class="form-label">Autore:</label>
-                <input type="text" name="autore_regista" id="autore_regista" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="anno_pubblicazione" class="form-label">Anno di Pubblicazione:</label>
-                <input type="number" name="anno_pubblicazione" id="anno_pubblicazione" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Aggiungi</button>
-        </form>
+    <?php if ($userManager->isLoggedIn()) : ?>
+            <h1 class="mt-5">Ciao <?php echo $userManager->getLoggedInUsername(); ?>! Aggiungi un libro!</h1>
+        <?php else: ?>
+            <h1 class="mt-5">Effettua il login o registrati!</h1>
+        <?php endif; ?>
+        <?php if ($userManager->isLoggedIn()) : ?>
+            <form action="" method="post" class="mt-4">
+                <div class="mb-3">
+                    <label for="titolo" class="form-label">Titolo:</label>
+                    <input type="text" name="titolo" id="titolo" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="autore_regista" class="form-label">Autore:</label>
+                    <input type="text" name="autore_regista" id="autore_regista" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="anno_pubblicazione" class="form-label">Anno di Pubblicazione:</label>
+                    <input type="number" name="anno_pubblicazione" id="anno_pubblicazione" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Aggiungi</button>
+            </form>
+        <?php endif; ?>
         <h2 class="mt-5">Libri</h2>
         <div class="row mt-3">
             <?php foreach ($books as $book) : ?>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                <div class="card-body">
-    <h5 class="card-title"><?php echo $book['title']; ?></h5>
-    <h6 class="card-subtitle mb-2 text-muted"><?php echo $book['author']; ?></h6>
-    <p class="card-text"><?php echo $book['year_publication']; ?></p>
-    <a href="?action=delete&book_id=<?php echo $book['id_book']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo libro?')">Elimina</a>
-</div>
-
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title"><?php echo $book['title']; ?></h5>
+                            <h6 class="card-subtitle mb-2 text-muted"><?php echo $book['author']; ?></h6>
+                            <p class="card-text"><?php echo $book['year_publication']; ?></p>
+                            <?php if ($userManager->isLoggedIn()) : ?>
+                                <a href="?action=delete&book_id=<?php echo $book['id_book']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo libro?')">Elimina</a>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
-            </div>
             <?php endforeach; ?>
         </div>
     </div>
